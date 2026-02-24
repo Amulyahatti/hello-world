@@ -4,25 +4,26 @@ from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import AzureChatOpenAI
-from tavily import TavilyClient
+from langchain_tavily import TavilySearch
+# from tavily import TavilyClient
 import os
 
 load_dotenv() 
 
-tavily = TavilyClient()
+# tavily = TavilyClient()
 
-@tool
-def search(query: str) -> str:
-    """
-    Tool that searches over internet
-    Args:
-        query: The query to search for
-    Returns:
-        The search results
-    """
-    print(f"Searching for: {query}")
-    return tavily.search(query=query)
-    # return "Tokyo weather is sunny"
+# @tool
+# def search(query: str) -> str:
+#     """
+#     Tool that searches over internet
+#     Args:
+#         query: The query to search for
+#     Returns:
+#         The search results
+#     """
+#     print(f"Searching for: {query}")
+#     return tavily.search(query=query)
+#     # return "Tokyo weather is sunny"
 
 llm = AzureChatOpenAI(
     api_key=os.getenv("AZURE_OPENAI_API_KEY"),
@@ -32,7 +33,7 @@ llm = AzureChatOpenAI(
 )
 
 # llm = AzureChatOpenAI(model="gemini-2.5-flash")
-tools = [search]
+tools = [TavilySearch()]
 agent = create_agent(model=llm, tools=tools)
 
 def main():
