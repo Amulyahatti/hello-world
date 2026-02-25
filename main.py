@@ -8,6 +8,9 @@ from langchain_tavily import TavilySearch
 # from tavily import TavilyClient
 import os
 
+from typing import List
+from pydantic import BaseModel, Field
+
 load_dotenv() 
 
 # tavily = TavilyClient()
@@ -25,6 +28,15 @@ load_dotenv()
 #     return tavily.search(query=query)
 #     # return "Tokyo weather is sunny"
 
+class Source(BaseModel):
+    """ Schema for a source used bu the Agent"""
+    url: str = Field(..., description="The URL of the source")
+
+class AgentResponse(BaseModel):
+    """ Schema for the response returned by the Agent"""
+    answer: str = Field(..., description="The answer to the user's query")
+    sources: List[Source] = Field(..., description="The sources used to generate the answer")
+
 llm = AzureChatOpenAI(
     api_key=os.getenv("AZURE_OPENAI_API_KEY"),
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
@@ -34,8 +46,7 @@ llm = AzureChatOpenAI(
 
 # llm = AzureChatOpenAI(model="gemini-2.5-flash")
 tools = [TavilySearch()]
-agent = create_agent(model=llm, tools=tools)
-
+agent = create_agent(model=llm, tools=tools, response_format=AgentResponse)
 def main():
     print("Hello from langchain-course!")
     result = agent.invoke({"messages":HumanMessage(content="Serach for 3 job postings for an ai engineer using langchain in Banglore on LinkedIn and list there details")}) 
